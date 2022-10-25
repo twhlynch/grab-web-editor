@@ -1,0 +1,79 @@
+html, body, menu, aside, canvas{
+    padding: 0;
+    margin: 0;
+    max-height: 100vh;
+    overflow: hidden;
+}
+body {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+p {
+    margin: 0;
+}
+.slider {
+    display: flex;
+    flex-direction: row;
+    padding: .5rem;
+}
+.snap {
+    display: flex;
+    padding: .5rem;
+    flex-direction: column;
+}
+aside {
+    background: #252526;
+    width: 300px;
+}
+.objects {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(3, 70px);
+    grid-template-rows: repeat(auto-fill, 1fr);
+    grid-gap: 10px;
+    padding-inline: 20px;
+    border-top: 20px solid #3335;
+    border-bottom: 20px solid #3335;
+    background: #3335;
+    height: 300px;
+    overflow-y: scroll;
+}
+.objects::-webkit-scrollbar {
+    width: 0;
+}
+.objects > div {
+    background: #333;
+    width: 70px;
+    height: 70px;
+    color: #fff;
+    cursor: pointer;
+}
+.objects > div.selected, .shape.selected {
+    background: #999;
+    box-shadow: 0px 0px 6px #999;
+}
+.objects > div > img {
+    height: 70px;
+}
+.shapes {
+    display: grid;
+    justify-content: center;
+    grid-template-columns: repeat(3, 70px);
+    grid-template-rows: repeat(auto-fill, 1fr);
+    grid-gap: 10px;
+    padding-inline: 20px;
+    border-top: 20px solid #3335;
+    border-bottom: 20px solid #3335;
+    background: #3335;
+}
+.shape {
+    background: #333;
+    width: 70px;
+    height: 70px;
+    color: #fff;
+    cursor: pointer;
+}
+.shape > img {
+    height: 70px;
+}
