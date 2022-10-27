@@ -60,6 +60,25 @@ $( document ).ready(function() {
         if (e.which == 83) {
             control.setMode( "scale" );
         }
+        if (e.which == 46) {
+            scene.remove(current);
+            objects.splice(objects.indexOf(current), 1);
+            scene.remove(control);
+        }
+    });
+    $('#scale').click(function() {
+        control.setMode( "scale" );
+    });
+    $('#rotate').click(function() {
+        control.setMode( "rotate" );
+    });
+    $('#move').click(function() {
+        control.setMode( "translate" );
+    });
+    $('#delete').click(function() {
+        scene.remove(current);
+        objects.splice(objects.indexOf(current), 1);
+        scene.remove(control);
     });
 });
 
