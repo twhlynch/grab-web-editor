@@ -42,9 +42,9 @@ $( document ).ready(function() {
             obj.scale.x = current.scale.x;
             obj.scale.y = current.scale.y;
             obj.scale.z = current.scale.z;
-            obj.rotation._x = current.rotation._x;
-            obj.rotation._y = current.rotation._y;
-            obj.rotation._z = current.rotation._z;
+            obj.rotation.x = current.rotation.x;
+            obj.rotation.y = current.rotation.y;
+            obj.rotation.z = current.rotation.z;
             obj.position.x = current.position.x;
             obj.position.y = current.position.y;
             obj.position.z = current.position.z;
@@ -74,6 +74,22 @@ $( document ).ready(function() {
     });
     $('#move').click(function() {
         control.setMode( "translate" );
+    });
+    $('#clone').click(function() {
+        let geometry = current.geometry;
+        let material = current.material;
+        let obj = new THREE.Mesh( geometry, material );
+        obj.scale.x = current.scale.x;
+        obj.scale.y = current.scale.y;
+        obj.scale.z = current.scale.z;
+        obj.rotation.x = current.rotation.x;
+        obj.rotation.y = current.rotation.y;
+        obj.rotation.z = current.rotation.z;
+        obj.position.x = current.position.x;
+        obj.position.y = current.position.y;
+        obj.position.z = current.position.z;
+        scene.add( obj );
+        objects.push( obj );
     });
     $('#delete').click(function() {
         scene.remove(current);
