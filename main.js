@@ -160,7 +160,7 @@ function init() {
     controls.addEventListener( 'change', render );
     controls.mouseButtons = {LEFT: 2, MIDDLE: 1, RIGHT: 0}
     control = new TransformControls( camera, renderer.domElement );
-    control.addEventListener( 'change', render );
+    // control.addEventListener( 'change', render );
     control.addEventListener( 'dragging-changed', function ( event ) {
         controls.enabled = ! event.value;
     } );
