@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/OrbitControls.js';
 import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
+import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+
 
 $( document ).ready(function() {
     $('.objects > div').click(function() {
@@ -14,8 +16,12 @@ $( document ).ready(function() {
                 new Cylinder($(this).attr('id'));
             } else if ($('#pyramid').hasClass('selected')) {
                 new Pyramid($(this).attr('id'));
+            } else if ($('#prism').hasClass('selected')) {
+                new Prism($(this).attr('id'));
             }
-            
+        if ($(this).hasClass('objct-sign')) {
+            new Sign();
+        }
         }
     });
     $('.shape').click(function() {
@@ -100,15 +106,19 @@ $( document ).ready(function() {
 
 let camera, scene, renderer, light, controls, control, drag, current;
 let objects = [];
+let loader = new GLTFLoader();
 
 class Cube {
     constructor(img) {
-        let geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        let texture = new THREE.TextureLoader().load( 'textures/'+img+'.png' );
-        let material = new THREE.MeshPhongMaterial( { map: texture } );
-        let cube = new THREE.Mesh( geometry, material );
-        scene.add( cube );
-        objects.push( cube );
+        let model = loader.load('models/cube.gltf', function(gltf) {
+            let geometry = gltf.scene.children[0].geometry;
+            // let geometry = new THREE.BoxGeometry( 1, 1, 1 );
+            let texture = new THREE.TextureLoader().load( 'textures/'+img+'.png' );
+            let material = new THREE.MeshPhongMaterial( { map: texture } );
+            let cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );
+            objects.push( cube );
+        });
     }
 }
 class Sphere {
@@ -133,14 +143,44 @@ class Cylinder {
 }
 class Pyramid {
     constructor(img) {
-        let geometry = new THREE.TetrahedronGeometry( .5, 0 );
-        let texture = new THREE.TextureLoader().load( 'textures/'+img+'.png' );
-        let material = new THREE.MeshBasicMaterial( { map: texture } );
-        let pyramid = new THREE.Mesh( geometry, material );
-        scene.add( pyramid );
-        objects.push( pyramid );
+        let model = loader.load('models/pyramid.gltf', function(gltf) {
+            let geometry = gltf.scene.children[0].geometry;
+            let texture = new THREE.TextureLoader().load( 'textures/'+img+'.png' );
+            let material = new THREE.MeshPhongMaterial( { map: texture } );
+            let pyramid = new THREE.Mesh( geometry, material );
+            scene.add( pyramid );
+            objects.push( pyramid );
+        });
     }
 }
+class Prism {
+    constructor(img) {
+        let model = loader.load('models/prism.gltf', function(gltf) {
+            let geometry = gltf.scene.children[0].geometry;
+            let texture = new THREE.TextureLoader().load( 'textures/'+img+'.png' );
+            let material = new THREE.MeshPhongMaterial( { map: texture } );
+            let prism = new THREE.Mesh( geometry, material );
+            scene.add( prism );
+            objects.push( prism );
+        });
+    }
+}
+class Sign {
+    constructor() {
+        let model = loader.load('models/sign.gltf', function(gltf) {
+            let geometry = gltf.scene.children[0].geometry;
+            let texture = new THREE.TextureLoader().load( 'textures/wood.png' );
+            let material = new THREE.MeshPhongMaterial( { map: texture } );
+            let sign = new THREE.Mesh( geometry, material );
+            scene.add( sign );
+            objects.push( sign );
+            console.log(sign);
+        });
+    }
+}
+
+
+
 
 init();
 

@@ -1,0 +1,29 @@
+{
+    "images": [
+        {
+            "id": 0,
+            "full_src": "img/default.png",
+            "thumb_src" : "img/default.png"
+        },
+        {
+            "id": 1,
+            "full_src": "img/_.png",
+            "thumb_src" : "img/_.png"
+        },
+        {
+            "id": 2,
+            "full_src": "img/_.png",
+            "thumb_src" : "img/_.png"
+        },
+        {
+            "id": 3,
+            "full_src": "img/_.png",
+            "thumb_src" : "img/_.png"
+        },
+        {
+            "id": 4,
+            "full_src": "img/_.png",
+            "thumb_src" : "img/_.png"
+        }
+    ]
+}

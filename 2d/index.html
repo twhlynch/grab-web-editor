@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Editor</title>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+  background: black;
+  overflow: hidden;
+  margin: 0;
+}
+
+.grid-container {
+  user-select: none;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.grid-container:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.card img {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  top: 0;
+  left: 0;
+}
+
+.card {
+  opacity: 1;
+  overflow: hidden;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+}
+.card:hover {
+    /* inverted outline */
+    outline: 1px solid white;
+    outline-offset: 1px;
+
+
+}
+
+.card.hidden {
+  opacity: 0;
+}
+
+.menu{
+    position: fixed;
+    z-index: 10;
+    width: fit-content;
+    height: fit-content;
+    padding: 1rem;
+    border-radius: 5px;
+    background: #333;
+    color: #ffffff;
+    font-size: 1.5rem;
+    border: solid 5px #777;
+    display: none;
+    grid-template-columns: repeat(11, 1fr);
+}
+.menu-img {
+    width: 50px;
+    height: 50px;
+    margin: 0.5rem;
+    border-radius: 5px;
+    border: solid 5px #777;
+    background: #333;
+    cursor: pointer;
+}
+    </style>
+</head>
+<body>
+    <div class="menu"></div>
+    <div id="js-grid" class="grid-container"></div>
+    <script>
+        //create a grid of elements each 50x50 that fills the screen
+        
+        //get the width and height of the screen
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+
+        //calculate the number of elements that fit in the screen
+        var numX = Math.ceil(width / 50);
+        var numY = Math.ceil(height / 50);
+
+        //create the grid
+        for (var i = 0; i < numX; i++) {
+            for (var j = 0; j < numY; j++) {
+                //create a new div element
+                var div = document.createElement("div");
+                //set the class to card
+                div.className = "card";
+                //set the position
+                div.style.left = i * 50 + "px";
+                div.style.top = j * 50 + "px";
+                //add the element to the grid
+                document.getElementById("js-grid").appendChild(div);
+            }
+        }
+
+        //add an image to each element
+        var cards = document.getElementsByClassName("card");
+        for (var i = 0; i < cards.length; i++) {
+            var img = document.createElement("img");
+            img.src = "img/_.png";
+            cards[i].appendChild(img);
+        }
+
+        // on right click card, open menu with img options
+        $(document).on("contextmenu", ".card", function(e) {
+            e.preventDefault();
+            $(".menu").empty();
+            //get the position of the mouse
+            var x = e.pageX;
+            var y = e.pageY;
+            //set the position of the menu div
+            $(".menu").css("left", x + "px");
+            $(".menu").css("top", y + "px");
+            // add images
+            for (var i = 0; i < 10; i++) {
+                var img = document.createElement("img");
+                img.src = "img/" + i + ".png";
+                img.className = "menu-img";
+                $(".menu").append(img);
+            }
+            
+            $(".menu-img").on("click", function() {
+                var src = $(this).attr("src");
+                $(e.target).children("img").attr("src", src);
+            });
+            //show the menu
+            $(".menu").show();
+            //hide the menu when the mouse is clicked
+            $(document).one("click", function() {
+                $(".menu").hide();
+                $(".menu").empty();
+            });
+        });
+
+
+    </script>
+</body>
+</html>
