@@ -198,7 +198,7 @@ function init() {
     light = new THREE.AmbientLight(0xffffff)
     scene.add(light)
     controls = new OrbitControls( camera, renderer.domElement );
-    controls.addEventListener( 'change', render );
+    // controls.addEventListener( 'change', render );
     controls.mouseButtons = {LEFT: 2, MIDDLE: 1, RIGHT: 0}
     control = new TransformControls( camera, renderer.domElement );
     // control.addEventListener( 'change', render );
@@ -211,7 +211,14 @@ function init() {
     //     scene.add( control );
     // }
 
-
+    const div = document.createElement( 'div' );
+    div.className = 'label';
+    div.textContent = 'X';
+    div.style.marginTop = '-1em';
+    const label = new CSS2DObject( div );
+    label.position.set( 0, 0.2, 0 );
+    scene.add( label );
+    label.layers.set( 0 );
 
     drag = new DragControls( objects, camera, renderer.domElement)
     // drag.enabled = false;
@@ -228,14 +235,7 @@ function init() {
     } );
     window.addEventListener( 'resize', onWindowResize );
 
-    const div = document.createElement( 'div' );
-    div.className = 'label';
-    div.textContent = 'X';
-    div.style.marginTop = '-1em';
-    const label = new CSS2DObject( div );
-    label.position.set( 0, 0.2, 0 );
-    renderer.xr.getController(0).add( label );
-    label.layers.set( 0 );
+    
 }
 
 function onWindowResize() {
@@ -252,8 +252,12 @@ function render() {
     requestAnimationFrame( render );
     renderer.render(scene, camera);
 }
+var VRSButton = VRButton.createButton( renderer )
 
-document.body.appendChild( VRButton.createButton( renderer ) );
+document.body.appendChild( VRSButton );
+VRSButton.addEventListener( 'click', function () {
+    
+});
 renderer.xr.enabled = true;
 renderer.setAnimationLoop( function () {
 
