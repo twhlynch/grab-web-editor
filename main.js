@@ -4,6 +4,7 @@ import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/contr
 import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import { VRButton } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/webxr/VRButton.min.js";
+import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.126/examples/jsm/renderers/CSS2DRenderer.js';
 
 $( document ).ready(function() {
     $('.objects > div').click(function() {
@@ -226,6 +227,15 @@ function init() {
         event.object.material.emmissive = '0x000000';
     } );
     window.addEventListener( 'resize', onWindowResize );
+
+    const div = document.createElement( 'div' );
+    div.className = 'label';
+    div.textContent = 'X';
+    div.style.marginTop = '-1em';
+    const label = new CSS2DObject( div );
+    label.position.set( 0, 0.2, 0 );
+    getController(0).add( label );
+    label.layers.set( 0 );
 }
 
 function onWindowResize() {
