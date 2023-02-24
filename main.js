@@ -234,7 +234,7 @@ function init() {
     div.style.marginTop = '-1em';
     const label = new CSS2DObject( div );
     label.position.set( 0, 0.2, 0 );
-    getController(0).add( label );
+    renderer.xr.getController(0).add( label );
     label.layers.set( 0 );
 }
 
