@@ -3,7 +3,7 @@ import { OrbitControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/cont
 import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
 import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
-
+import { VRButton } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/webxr/VRButton.min.js";
 
 $( document ).ready(function() {
     $('.objects > div').click(function() {
@@ -242,3 +242,11 @@ function render() {
     requestAnimationFrame( render );
     renderer.render(scene, camera);
 }
+
+document.body.appendChild( VRButton.createButton( renderer ) );
+renderer.xr.enabled = true;
+renderer.setAnimationLoop( function () {
+
+	renderer.render( scene, camera );
+
+} );
