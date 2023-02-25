@@ -1,0 +1,143 @@
+syntax = "proto3";
+
+package COD.Types;
+
+message Vector
+{
+	float x = 1;
+	float y = 2;
+	float z = 3;
+}
+
+message Quaternion
+{
+	float x = 1;
+	float y = 2;
+	float z = 3;
+	float w = 4;
+}
+
+message Color
+{
+	float r = 1;
+	float g = 2;
+	float b = 3;
+	float a = 4;
+}
+
+message AmbienceSettings
+{
+	Color skyZenithColor = 1;
+	Color skyHorizonColor = 2;
+
+	float sunAltitude = 3;
+	float sunAzimuth = 4;
+	float sunSize = 5;
+
+	float fogDDensity = 6;
+}
+
+enum LevelNodeShape
+{
+	START = 0;
+	FINISH = 1;
+	SIGN = 2;
+
+	__END_OF_SPECIAL_PARTS__ = 3;
+
+	CUBE = 1000;
+	SPHERE = 1001;
+	CYLINDER = 1002;
+	PYRAMID = 1003;
+	PRISM = 1004;
+}
+
+enum LevelNodeMaterial
+{
+	DEFAULT = 0;
+	GRABBABLE = 1;
+	ICE = 2;
+	LAVA = 3;
+	WOOD = 4;
+	GRAPPLABLE = 5;
+	GRAPPLABLE_LAVA = 6;
+
+	GRABBABLE_CRUMBLING= 7;
+	DEFAULT_COLORED = 8;
+	BOUNCING = 9;
+}
+
+message LevelNodeGroup
+{
+	Vector position = 1;
+	Vector scale = 2;
+	Quaternion rotation = 3;
+
+	//This is where level nodes that are part of the group are stored when saving to file / loading
+	//It is ok to be empty when networking a groups transform
+	//There is an additional message for networking grouping and ungrouping (LevelNodeGroupRequest, LevelNodeGroupResponse)
+	//When sending the full level on a new player joining the editor, first the level nodes are sent on their own and then a group response to group them
+	repeated LevelNode childNodes = 4;
+}
+
+message LevelNodeStart
+{
+	Vector position = 1;
+	Quaternion rotation = 2; //Should always be upright and is meant to be used for the player rotation on spawn
+	float radius = 3;
+}
+
+message LevelNodeFinish
+{
+	Vector position = 1;
+	float radius = 2;
+}
+
+message LevelNodeStatic
+{
+	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
+	LevelNodeMaterial material = 2; //Can not be GRABBABLE_CRUMBLING
+
+	Vector position = 3;
+	Vector scale = 4;
+	Quaternion rotation = 5;
+
+	Color color = 6;
+	bool isNeon = 7;
+}
+
+message LevelNodeCrumbling
+{
+	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
+	LevelNodeMaterial material = 2; //Must be GRABBABLE_CRUMBLING
+
+	Vector position = 3;
+	Vector scale = 4;
+	Quaternion rotation = 5;
+
+	float stableTime = 6;
+	float respawnTime = 7;
+}
+
+message LevelNodeSign
+{
+	Vector position = 1;
+	Quaternion rotation = 2;
+
+	string text = 3;
+}
+
+message LevelNode
+{
+	bool isLocked = 6;
+
+	oneof content
+	{
+		Types.LevelNodeStart levelNodeStart = 1;
+		Types.LevelNodeFinish levelNodeFinish = 2;
+		Types.LevelNodeStatic levelNodeStatic = 3;
+		Types.LevelNodeSign levelNodeSign = 4;
+		Types.LevelNodeCrumbling levelNodeCrumbling = 5;
+		Types.LevelNodeGroup levelNodeGroup = 7;
+	}
+}

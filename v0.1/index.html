@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grab Level Editor | Grab Tools | .index</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.3/dist/protobuf.min.js"></script>
+
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.145.0/build/three.module.js",
+            "OrbitControls": "https://unpkg.com/three@0.145.0/examples/jsm/controls/OrbitControls.js",
+            "DragControls": "https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js",
+            "TransformControls": "https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js",
+            "GLTFLoader": "https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js",
+            "VRButton": "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/webxr/VRButton.min.js",
+            "CSS2D": "https://cdn.jsdelivr.net/npm/three@0.126/examples/jsm/renderers/CSS2DRenderer.js"
+          }
+        }
+    </script>
+
+    <script src="js/main.js" type="module" defer></script>
+</head>
+<body>
+    <main></main>
+    <div class="UI">
+        <div class="materials"></div>
+        <div class="shapes"></div>
+        <div class="menu-button"></div>
+        <div class="menu"></div>
+        <div class="import">
+            <label for="file" id="file-custom">Click me to select a file!
+                <div id="file-display"></div>
+            </label>
+            <input type="file" name="file" id="file" accept=".level">
+        </div>
+    </div>
+</body>
+</html>
