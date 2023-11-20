@@ -1,4 +1,4 @@
-import * as THREE from '/three';
+import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/OrbitControls.js';
 import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
@@ -11,16 +11,16 @@ let objects = [];
 let loader = new GLTFLoader();
 
 let materialList = [
-    '/textures/default.png',
-    '/textures/grabbable.png',
-    '/textures/ice.png',
-    '/textures/lava.png',
-    '/textures/wood.png',
-    '/textures/grapplable.png',
-    '/textures/grapplable_lava.png',
-    '/textures/grabbable_crumbling.png',
-    '/textures/default_colored.png',
-    '/textures/bouncing.png'
+    'textures/default.png',
+    'textures/grabbable.png',
+    'textures/ice.png',
+    'textures/lava.png',
+    'textures/wood.png',
+    'textures/grapplable.png',
+    'textures/grapplable_lava.png',
+    'textures/grabbable_crumbling.png',
+    'textures/default_colored.png',
+    'textures/bouncing.png'
 ];
 let shapeList = [
     'models/cube.glb',
