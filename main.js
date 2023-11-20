@@ -960,7 +960,7 @@ function exportScene() {
     let blob = new Blob([buffer], {type: "application/octet-stream"});
     let link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = "test.level";
+    link.download = (Date.now()).toString().slice(0, -3)+".level";
     link.click();
 }
 
