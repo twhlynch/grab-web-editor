@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/OrbitControls.js';
 import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
-import {GLTFLoader} from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import { VRButton } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/webxr/VRButton.min.js";
-import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.126/examples/jsm/renderers/CSS2DRenderer.js';
 
 let camera, scene, renderer, light, sun, controls, control, drag, current;
 let objects = [];
@@ -731,6 +730,145 @@ function exportScene() {
         levelNodes: []
     };
 
+    function exportNode(node, parent) {
+        let info = node.grabInfo;
+        if (info.type === "group") {
+            let group = {
+                levelNodeGroup: {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    scale: {
+                        x: node.scale.x,
+                        y: node.scale.y,
+                        z: node.scale.z
+                    },
+                    rotation: {
+                        x: node.quaternion.x,
+                        y: node.quaternion.y,
+                        z: node.quaternion.z,
+                        w: node.quaternion.w
+                    },
+                    childNodes: []
+                }
+            };
+            parent.push(group);
+            node.children.forEach(object => {
+                if (object.grabInfo) {
+                    exportNode(object, group.levelNodeGroup.childNodes);
+                }
+            });
+        } else if (info.type === "static") {
+            let obj = {
+                levelNodeStatic: {
+                    shape: info.shape,
+                    material: info.material,
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    scale: {
+                        x: node.scale.x,
+                        y: node.scale.y,
+                        z: node.scale.z
+                    },
+                    rotation: {
+                        x: node.quaternion.x,
+                        y: node.quaternion.y,
+                        z: node.quaternion.z,
+                        w: node.quaternion.w
+                    }
+                }
+            };
+            info.color ? obj.levelNodeStatic.color = info.color : null;
+            info.isNeon ? obj.levelNodeStatic.isNeon = info.isNeon : null;
+            parent.push(obj);
+        } else if (info.type === 'crumbling') {
+            let obj = {
+                levelNodeCrumbling: {
+                    shape: info.shape,
+                    material: info.material,
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    scale: {
+                        x: node.scale.x,
+                        y: node.scale.y,
+                        z: node.scale.z
+                    },
+                    rotation: {
+                        x: node.quaternion.x,
+                        y: node.quaternion.y,
+                        z: node.quaternion.z,
+                        w: node.quaternion.w
+                    },
+                    stableTime: info.stableTime,
+                    respawnTime: info.respawnTime
+                }
+            };
+            parent.push(obj);
+        } else if (info.type === 'sign') {
+            let obj = {
+                levelNodeSign: {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    rotation: {
+                        x: node.quaternion.x,
+                        y: node.quaternion.y,
+                        z: node.quaternion.z,
+                        w: node.quaternion.w
+                    },
+                    text: info.text
+                }
+            };
+            parent.push(obj);
+        } else if (info.type === 'start') {
+            let obj = {
+                levelNodeStart: {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    rotation: {
+                        x: node.quaternion.x,
+                        y: node.quaternion.y,
+                        z: node.quaternion.z,
+                        w: node.quaternion.w
+                    },
+                    radius: node.scale.x
+                }
+            };
+            parent.push(obj);
+        } else if (info.type === 'finish') {
+            let obj = {
+                levelNodeFinish: {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y,
+                        z: node.position.z
+                    },
+                    radius: node.scale.x
+                }
+            };
+            parent.push(obj);
+        }
+    }
+    scene.children.forEach(object => {
+        if (object.grabInfo) {
+            exportNode(object, level.levelNodes);
+        }
+    });
+
+    /*
     objects.forEach(object => {
         if (object?.grabInfo?.type !== "group") {
             let node;
@@ -824,6 +962,7 @@ function exportScene() {
             level.levelNodes.push(node);
         }
     });
+    */
 
     console.log(level);
 
