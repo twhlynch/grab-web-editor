@@ -127,17 +127,41 @@ message LevelNodeSign
 	string text = 3;
 }
 
+message AnimationFrame
+{
+	float time = 1;
+	Vector position = 2;
+	Quaternion rotation = 3;
+}
+
+message Animation
+{
+	enum Direction
+	{
+		RESTART = 0; //After the last frame, jump back to the first frame
+		PINGPONG = 1; //After the last frame, play the animation backwards
+	}
+
+	string name = 1;
+	repeated AnimationFrame frames = 2;
+	Direction direction = 3;
+	float speed = 4;
+}
+
 message LevelNode
 {
 	bool isLocked = 6;
 
 	oneof content
 	{
-		Types.LevelNodeStart levelNodeStart = 1;
-		Types.LevelNodeFinish levelNodeFinish = 2;
-		Types.LevelNodeStatic levelNodeStatic = 3;
-		Types.LevelNodeSign levelNodeSign = 4;
-		Types.LevelNodeCrumbling levelNodeCrumbling = 5;
-		Types.LevelNodeGroup levelNodeGroup = 7;
+		LevelNodeStart levelNodeStart = 1;
+		LevelNodeFinish levelNodeFinish = 2;
+		LevelNodeStatic levelNodeStatic = 3;
+		LevelNodeSign levelNodeSign = 4;
+		LevelNodeCrumbling levelNodeCrumbling = 5;
+		LevelNodeGroup levelNodeGroup = 7;
 	}
+
+	//A level node can have any number (might limit it in the UI) of named animations, if groups are involved every block that is part of the same animation should have an animation with the same name
+	repeated Animation animations = 15;
 }
