@@ -1,4 +1,4 @@
-html, body, menu, aside, canvas{
+html, body, menu, canvas{
     padding: 0;
     margin: 0;
     max-height: 100vh;
@@ -9,72 +9,47 @@ body {
     flex-direction: row;
     height: 100vh;
 }
-p {
-    margin: 0;
-}
-.slider {
+#controls {
     display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
     flex-direction: row;
-    padding: .5rem;
+    width: calc(100svw - 40px);
+    height: fit-content;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 20px;
+    z-index: 10;
 }
-.snap {
-    display: flex;
-    padding: .5rem;
-    flex-direction: column;
-}
-aside {
-    background: #252526;
-    width: 300px;
-    display: none;
-}
-.objects {
-    display: grid;
-    justify-content: center;
-    grid-template-columns: repeat(3, 70px);
-    grid-template-rows: repeat(auto-fill, 1fr);
-    grid-gap: 10px;
-    padding-inline: 20px;
-    border-top: 20px solid #3335;
-    border-bottom: 20px solid #3335;
-    background: #3335;
-    height: 300px;
-    overflow-y: scroll;
-}
-.objects::-webkit-scrollbar {
-    width: 0;
-}
-.objects > div {
-    background: #333;
-    width: 70px;
-    height: 70px;
-    color: #fff;
+#controls button {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    padding: 10px;
     cursor: pointer;
+    padding: 12px 6px;
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    color: rgb(255, 255, 255);
+    font: 13px sans-serif;
+    text-align: center;
+    opacity: 0.5;
+    outline: none;
 }
-.objects > div.selected, .shape.selected {
-    background: #999;
-    box-shadow: 0px 0px 6px #999;
+#controls svg {
+    height: 24px;
+    width: 24px;
 }
-.objects > div > img {
-    height: 70px;
+#VRButton {
+    display: none !important;
 }
-.shapes {
-    display: grid;
-    justify-content: center;
-    grid-template-columns: repeat(3, 70px);
-    grid-template-rows: repeat(auto-fill, 1fr);
-    grid-gap: 10px;
-    padding-inline: 20px;
-    border-top: 20px solid #3335;
-    border-bottom: 20px solid #3335;
-    background: #3335;
-}
-.shape {
-    background: #333;
-    width: 70px;
-    height: 70px;
-    color: #fff;
-    cursor: pointer;
-}
-.shape > img {
-    height: 70px;
+@media screen and (orientation: landscape) {
+    #controls {
+        flex-direction: column;
+        width: fit-content;
+        height: calc(100svh - 40px);
+    }
 }

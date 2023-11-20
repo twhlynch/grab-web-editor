@@ -343,7 +343,7 @@ async function init() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
-    document.getElementsByTagName('main')[0].appendChild( renderer.domElement );
+    document.getElementById("viewport").appendChild( renderer.domElement );
 
     scene = new THREE.Scene();
 
@@ -380,6 +380,60 @@ async function init() {
     window.addEventListener( 'mouseup', handleUp);
     window.addEventListener( 'touchend', handleUp);
     window.addEventListener( 'keydown', handleKey);
+
+    let scaleButton = document.getElementById("scale-btn");
+    scaleButton.addEventListener( 'click', () => {
+        control.setMode( "scale" );
+    }
+    );
+    let rotateButton = document.getElementById("rotate-btn");
+    rotateButton.addEventListener( 'click', () => {
+        control.setMode( "rotate" );
+    }
+    );
+    let translateButton = document.getElementById("translate-btn");
+    translateButton.addEventListener( 'click', () => {
+        control.setMode( "translate" );
+    }
+    );
+    let cloneButton = document.getElementById("clone-btn");
+    cloneButton.addEventListener( 'click', () => {
+        let geometry = current.geometry;
+        let material = current.material;
+
+        let obj = new THREE.Mesh( geometry, material );
+
+        obj.scale.x = current.scale.x;
+        obj.scale.y = current.scale.y;
+        obj.scale.z = current.scale.z;
+        obj.rotation.x = current.rotation.x;
+        obj.rotation.y = current.rotation.y;
+        obj.rotation.z = current.rotation.z;
+        obj.position.x = current.position.x;
+        obj.position.y = current.position.y;
+        obj.position.z = current.position.z;
+
+        scene.add( obj );
+        objects.push( obj );
+    }
+    );
+    let deleteButton = document.getElementById("delete-btn");
+    deleteButton.addEventListener( 'click', () => {
+        scene.remove(current);
+        objects.splice(objects.indexOf(current), 1);
+        scene.remove(control);
+    }
+    );
+
+    let vrbutton = VRButton.createButton( renderer );
+    let vrcontrol = document.getElementById("vr-btn");
+    vrcontrol.addEventListener( 'click', () => {
+        renderer.xr.enabled = true;
+        renderer.setAnimationLoop( function () {
+            renderer.render( scene, camera );
+        } );
+        vrbutton.click();
+    });
 
     await initAttributes();
     let level = await openProto("https://api.slin.dev/grab/v1/download/29ffxg2ijqxyrgxyy2vjj/1642284195/1");
@@ -622,16 +676,3 @@ function onWindowResize() {
 
     renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
 }
-
-
-let VRSButton = VRButton.createButton( renderer )
-document.body.appendChild( VRSButton );
-VRSButton.addEventListener( 'click', function () {
-    
-});
-renderer.xr.enabled = true;
-renderer.setAnimationLoop( function () {
-
-	renderer.render( scene, camera );
-
-} );
