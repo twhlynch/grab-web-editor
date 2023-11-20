@@ -406,7 +406,22 @@ async function init() {
     });
 
     await initAttributes();
-    let level = await openProto("https://api.slin.dev/grab/v1/download/29ffxg2ijqxyrgxyy2vjj/1642284195/1");
+
+    let url = "https://api.slin.dev/grab/v1/download/29ffxg2ijqxyrgxyy2vjj/1642284195/1"
+    let query = new URLSearchParams(window.location.search);
+    if (query.has("level")) {
+        let id = query.get("level");
+        if (id.split(":").length == 3) {
+            url = `https://api.slin.dev/grab/v1/download/${id.split(":").join("/")}`;
+        } else {
+            let detailsUrl = "https://api.slin.dev/grab/v1/details/" + id.split(":").join("/");
+            let response = await fetch(detailsUrl);
+            let details = await response.json();
+            let iteration = details.iteration;
+            url = `https://api.slin.dev/grab/v1/download/${id.split(":").join("/")}/${iteration}`;
+        }
+    }
+    let level = await openProto(url);
 
     let complexity = 0;
 
