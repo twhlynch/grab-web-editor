@@ -25,6 +25,7 @@ p {
 aside {
     background: #252526;
     width: 300px;
+    display: none;
 }
 .objects {
     display: grid;
