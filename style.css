@@ -23,7 +23,21 @@ body {
     padding: 20px;
     z-index: 10;
 }
-#controls button {
+#main-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    width: calc(100svw - 40px);
+    height: fit-content;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    z-index: 10;
+}
+menu button {
     width: 50px;
     height: 50px;
     margin: 0;
@@ -39,7 +53,7 @@ body {
     opacity: 0.5;
     outline: none;
 }
-#controls svg {
+menu svg {
     height: 24px;
     width: 24px;
 }

@@ -281,7 +281,7 @@ function loadModel(path) {
     return new Promise((resolve) => {
         loader.load(path, function (gltf) {
             const glftScene = gltf.scene;
-            glftScene.children[0].geometry.rotateX(Math.PI);
+            // glftScene.children[0].geometry.rotateX(Math.PI);
             resolve(glftScene.children[0]);
         });
     });
@@ -382,48 +382,18 @@ async function init() {
     window.addEventListener( 'keydown', handleKey);
 
     let scaleButton = document.getElementById("scale-btn");
-    scaleButton.addEventListener( 'click', () => {
-        control.setMode( "scale" );
-    }
-    );
     let rotateButton = document.getElementById("rotate-btn");
-    rotateButton.addEventListener( 'click', () => {
-        control.setMode( "rotate" );
-    }
-    );
     let translateButton = document.getElementById("translate-btn");
-    translateButton.addEventListener( 'click', () => {
-        control.setMode( "translate" );
-    }
-    );
     let cloneButton = document.getElementById("clone-btn");
-    cloneButton.addEventListener( 'click', () => {
-        let geometry = current.geometry;
-        let material = current.material;
-
-        let obj = new THREE.Mesh( geometry, material );
-
-        obj.scale.x = current.scale.x;
-        obj.scale.y = current.scale.y;
-        obj.scale.z = current.scale.z;
-        obj.rotation.x = current.rotation.x;
-        obj.rotation.y = current.rotation.y;
-        obj.rotation.z = current.rotation.z;
-        obj.position.x = current.position.x;
-        obj.position.y = current.position.y;
-        obj.position.z = current.position.z;
-
-        scene.add( obj );
-        objects.push( obj );
-    }
-    );
     let deleteButton = document.getElementById("delete-btn");
-    deleteButton.addEventListener( 'click', () => {
-        scene.remove(current);
-        objects.splice(objects.indexOf(current), 1);
-        scene.remove(control);
-    }
-    );
+    let exportButton = document.getElementById("export-btn");
+    
+    scaleButton.addEventListener( 'click', () => {control.setMode( "scale" );});
+    rotateButton.addEventListener( 'click', () => {control.setMode( "rotate" );});
+    translateButton.addEventListener( 'click', () => {control.setMode( "translate" );});
+    cloneButton.addEventListener( 'click', cloneCurrent);
+    deleteButton.addEventListener( 'click', deleteCurrent);
+    exportButton.addEventListener( 'click', exportScene);
 
     let vrbutton = VRButton.createButton( renderer );
     let vrcontrol = document.getElementById("vr-btn");
@@ -471,6 +441,11 @@ function loadLevelNode(node, parent) {
 
         let groupComplexity = 0;
 
+        // grab info
+        cube.grabInfo = {
+            type: 'group'
+        };
+
         node.levelNodeGroup.childNodes.forEach(node => {
             groupComplexity += loadLevelNode(node, cube);
         });
@@ -489,12 +464,17 @@ function loadLevelNode(node, parent) {
         (material < 0 || material >= materials.length) ? material = 0 : null;
         objectMaterial = materials[material].clone();
         
+        let color = {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+        };
         if (material == 8) {
-            let color = [0, 0, 0];
-            node.color.r ? color[0] = node.color.r : null;
-            node.color.g ? color[1] = node.color.g : null;
-            node.color.b ? color[2] = node.color.b : null;
-            objectMaterial.uniforms.colors.value = new THREE.Vector3(color[0], color[1], color[2]);
+            node.color.r ? color.r = node.color.r : null;
+            node.color.g ? color.g = node.color.g : null;
+            node.color.b ? color.b = node.color.b : null;
+            objectMaterial.uniforms.colors.value = new THREE.Vector3(color.r, color.g, color.b);
         }
 
         if ([2, 3, 5, 6].includes(material)) {
@@ -513,6 +493,16 @@ function loadLevelNode(node, parent) {
         node.scale.x ? objectShape.scale.x = node.scale.x : objectShape.scale.x = 0;
         node.scale.y ? objectShape.scale.y = node.scale.y : objectShape.scale.y = 0;
         node.scale.z ? objectShape.scale.z = node.scale.z : objectShape.scale.z = 0;
+
+        // grab info
+        objectShape.grabInfo = {
+            type: 'static',
+            shape: shape,
+            material: material,
+            color: color,
+            isNeon: node?.isNeon
+        };
+        
 
         parent.add(objectShape);
         objects.push(objectShape);
@@ -531,18 +521,6 @@ function loadLevelNode(node, parent) {
         (material < 0 || material >= materials.length) ? material = 0 : null;
         objectMaterial = materials[material].clone();
         
-        if (material == 8) {
-            let color = [0, 0, 0];
-            node.color.r ? color[0] = node.color.r : null;
-            node.color.g ? color[1] = node.color.g : null;
-            node.color.b ? color[2] = node.color.b : null;
-            objectMaterial.uniforms.colors.value = new THREE.Vector3(color[0], color[1], color[2]);
-        }
-
-        if ([2, 3, 5, 6].includes(material)) {
-            objectMaterial.uniforms.tileFactor.value = 0.5;
-        }
-
         objectShape.material = objectMaterial;
 
         node.position.x ? objectShape.position.x = node.position.x : objectShape.position.x = 0;
@@ -555,6 +533,15 @@ function loadLevelNode(node, parent) {
         node.scale.x ? objectShape.scale.x = node.scale.x : objectShape.scale.x = 0;
         node.scale.y ? objectShape.scale.y = node.scale.y : objectShape.scale.y = 0;
         node.scale.z ? objectShape.scale.z = node.scale.z : objectShape.scale.z = 0;
+
+        // grab info
+        objectShape.grabInfo = {
+            type: 'crumbling',
+            shape: shape,
+            material: material,
+            stableTime: node?.stableTime,
+            respawnTime: node?.respawnTime
+        };
 
         parent.add(objectShape);
         objects.push(objectShape);
@@ -573,6 +560,12 @@ function loadLevelNode(node, parent) {
         node.rotation.x ? objectShape.quaternion.x = node.rotation.x : objectShape.quaternion.x = 0;
         node.rotation.y ? objectShape.quaternion.y = node.rotation.y : objectShape.quaternion.y = 0;
         node.rotation.z ? objectShape.quaternion.z = node.rotation.z : objectShape.quaternion.z = 0;
+
+         // grab info
+         objectShape.grabInfo = {
+            type: 'sign',
+            text: node?.text
+        };
 
         parent.add(objectShape);
         objects.push(objectShape);
@@ -594,6 +587,11 @@ function loadLevelNode(node, parent) {
         node.radius ? objectShape.scale.x = node.radius : objectShape.scale.x = 0;
         node.radius ? objectShape.scale.z = node.radius : objectShape.scale.z = 0;
 
+         // grab info
+         objectShape.grabInfo = {
+            type: 'start'
+        };
+
         parent.add(objectShape);
         objects.push(objectShape);
 
@@ -609,6 +607,11 @@ function loadLevelNode(node, parent) {
         node.position.z ? objectShape.position.z = node.position.z : objectShape.position.z = 0;
         node.radius ? objectShape.scale.x = node.radius : objectShape.scale.x = 0;
         node.radius ? objectShape.scale.z = node.radius : objectShape.scale.z = 0;
+
+        // grab info
+        objectShape.grabInfo = {
+            type: 'finish'
+        };
 
         parent.add(objectShape);
         objects.push(objectShape);
@@ -635,26 +638,37 @@ function handleUp(e) {
     }
 }
 
+function deleteCurrent() {
+    scene.remove(current);
+    objects.splice(objects.indexOf(current), 1);
+    scene.remove(control);
+}
+
+function cloneCurrent() {
+    let geometry = current.geometry;
+    let material = current.material;
+
+    let obj = new THREE.Mesh( geometry, material );
+
+    obj.scale.x = current.scale.x;
+    obj.scale.y = current.scale.y;
+    obj.scale.z = current.scale.z;
+    obj.rotation.x = current.rotation.x;
+    obj.rotation.y = current.rotation.y;
+    obj.rotation.z = current.rotation.z;
+    obj.position.x = current.position.x;
+    obj.position.y = current.position.y;
+    obj.position.z = current.position.z;
+    obj.grabInfo = current.grabInfo;
+
+    scene.add( obj );
+    objects.push( obj );
+}
+
 function handleKey(e) {
     console.log(e.which);
     if (e.which == 68) { // d
-        let geometry = current.geometry;
-        let material = current.material;
-
-        let obj = new THREE.Mesh( geometry, material );
-
-        obj.scale.x = current.scale.x;
-        obj.scale.y = current.scale.y;
-        obj.scale.z = current.scale.z;
-        obj.rotation.x = current.rotation.x;
-        obj.rotation.y = current.rotation.y;
-        obj.rotation.z = current.rotation.z;
-        obj.position.x = current.position.x;
-        obj.position.y = current.position.y;
-        obj.position.z = current.position.z;
-
-        scene.add( obj );
-        objects.push( obj );
+        cloneCurrent();
     } else if (e.which == 84) { // t
         control.setMode( "translate" );
     } else if (e.which == 82) { // r
@@ -662,17 +676,154 @@ function handleKey(e) {
     } else if (e.which == 83) { // s
         control.setMode( "scale" );
     } else if (e.which == 46) { // delete
-        scene.remove(current);
-        objects.splice(objects.indexOf(current), 1);
-        scene.remove(control);
+        deleteCurrent();
     }
 }
-
-init();
 
 function onWindowResize() {
     camera.aspect = (window.innerWidth - /*30*/0) / window.innerHeight;
     camera.updateProjectionMatrix();
-
+    
     renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
 }
+
+function exportScene() {
+    let level = {
+        formatVersion: 7,
+        title: "Test",
+        creators: "Test",
+        description: "Test",
+        complexity: 0,
+        maxCheckpointCount: 0,
+        ambienceSettings: {
+            skyZenithColor: {
+                r: 0.5,
+                g: 0.5,
+                b: 0.5,
+                a: 1.0
+            },
+            skyHorizonColor: {
+                r: 0.5,
+                g: 0.5,
+                b: 0.5,
+                a: 1.0
+            },
+            sunAltitude: 0,
+            sunAzimuth: 0,
+            sunSize: 0,
+            fogDDensity: 0
+        },
+        levelNodes: []
+    };
+
+    objects.forEach(object => {
+        if (object?.grabInfo?.type !== "group") {
+            let node;
+            if (object.grabInfo.type == 'static') {
+                node = {"levelNodeStatic":{
+                    "shape": object.grabInfo.shape,
+                    "material": object.grabInfo.material,
+                    "position": {
+                        "x": object.position.x,
+                        "y": object.position.y,
+                        "z": object.position.z
+                    },
+                    "scale": {
+                        "x": object.scale.x,
+                        "y": object.scale.y,
+                        "z": object.scale.z
+                    },
+                    "rotation": {
+                        "x": object.quaternion.x,
+                        "y": object.quaternion.y,
+                        "z": object.quaternion.z,
+                        "w": object.quaternion.w
+                    }
+                }};
+                object.grabInfo.color ? node.color = object.grabInfo.color : null;
+                object.grabInfo.isNeon ? node.isNeon = object.grabInfo.isNeon : null;
+            } else if (object.grabInfo.type === "crumbling") {
+                node = {"levelNodeStatic":{
+                    "shape": object.grabInfo.shape,
+                    "material": object.grabInfo.material,
+                    "position": {
+                        "x": object.position.x,
+                        "y": object.position.y,
+                        "z": object.position.z
+                    },
+                    "scale": {
+                        "x": object.scale.x,
+                        "y": object.scale.y,
+                        "z": object.scale.z
+                    },
+                    "rotation": {
+                        "x": object.quaternion.x,
+                        "y": object.quaternion.y,
+                        "z": object.quaternion.z,
+                        "w": object.quaternion.w
+                    }
+                }};
+                object.grabInfo.stableTime ? node.stableTime = object.grabInfo.stableTime : null;
+                object.grabInfo.respawnTime ? node.respawnTime = object.grabInfo.respawnTime : null;
+            } else if (object.grabInfo.type === "sign") {
+                node = {"levelNodeSign":{
+                    "position": {
+                        "x": object.position.x,
+                        "y": object.position.y,
+                        "z": object.position.z
+                    },
+                    "rotation": {
+                        "x": object.quaternion.x,
+                        "y": object.quaternion.y,
+                        "z": object.quaternion.z,
+                        "w": object.quaternion.w
+                    }
+                }};
+                object.grabInfo.text ? node.text = object.grabInfo.text : null;
+            } else if (object.grabInfo.type === "start") {
+                node = {"levelNodeStart":{
+                    "position": {
+                        "x": object.position.x,
+                        "y": object.position.y,
+                        "z": object.position.z
+                    },
+                    "rotation": {
+                        "x": object.quaternion.x,
+                        "y": object.quaternion.y,
+                        "z": object.quaternion.z,
+                        "w": object.quaternion.w
+                    },
+                    "radius": object.scale.x
+                }};
+            } else if (object.grabInfo.type === "finish") {
+                node = {"levelNodeFinish":{
+                    "position": {
+                        "x": object.position.x,
+                        "y": object.position.y,
+                        "z": object.position.z
+                    },
+                    "radius": object.scale.x
+                }};
+            }
+            
+            level.levelNodes.push(node);
+        }
+    });
+
+    console.log(level);
+
+    let {root} = protobuf.parse(PROTOBUF_DATA, { keepCase: true });
+    let message = root.lookupType("COD.Level.Level");
+    let errMsg = message.verify(level);
+    if (errMsg) {
+        throw Error(errMsg);
+    }
+    let buffer = message.encode(message.create(level)).finish();
+    let blob = new Blob([buffer], {type: "application/octet-stream"});
+    let link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "test.level";
+    link.click();
+}
+
+init();
