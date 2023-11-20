@@ -8,6 +8,7 @@ import { VRButton } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js
 let camera, scene, renderer, light, sun, controls, control, drag, current;
 let objects = [];
 let loader = new GLTFLoader();
+let importedLevel;
 
 let materialList = [
     'textures/default.png',
@@ -421,6 +422,7 @@ async function init() {
         }
     }
     let level = await openProto(url);
+    importedLevel = level;
 
     let complexity = 0;
 
@@ -704,29 +706,11 @@ function onWindowResize() {
 function exportScene() {
     let level = {
         formatVersion: 7,
-        title: "Test",
-        creators: "Test",
-        description: "Test",
-        complexity: 0,
-        maxCheckpointCount: 0,
-        ambienceSettings: {
-            skyZenithColor: {
-                r: 0.5,
-                g: 0.5,
-                b: 0.5,
-                a: 1.0
-            },
-            skyHorizonColor: {
-                r: 0.5,
-                g: 0.5,
-                b: 0.5,
-                a: 1.0
-            },
-            sunAltitude: 0,
-            sunAzimuth: 0,
-            sunSize: 0,
-            fogDDensity: 0
-        },
+        title: importedLevel.title,
+        creators: importedLevel.creators,
+        description: importedLevel.description,
+        maxCheckpointCount: importedLevel.maxCheckpointCount,
+        ambienceSettings: importedLevel.ambienceSettings,
         levelNodes: []
     };
 
