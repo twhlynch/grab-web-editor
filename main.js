@@ -375,6 +375,12 @@ async function init() {
 
     window.addEventListener( 'resize', onWindowResize );
 
+    window.addEventListener( 'mousedown', handleDown);
+    window.addEventListener( 'touchstart', handleDown)
+    window.addEventListener( 'mouseup', handleUp);
+    window.addEventListener( 'touchend', handleUp);
+    window.addEventListener( 'keydown', handleKey);
+
     await initAttributes();
     let level = await openProto("https://api.slin.dev/grab/v1/download/29ffxg2ijqxyrgxyy2vjj/1642284195/1");
 
@@ -563,87 +569,26 @@ function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 }
-/*
-$( document ).ready(function() {
-    $('.objects > div').click(function() {
-        if ($(this).hasClass('object')) {
-            if ($('#cube').hasClass('selected')) {
-                new Cube($(this).attr('id'));
-            } else if ($('#sphere').hasClass('selected')) {
-                new Sphere($(this).attr('id'));
-            } else if ($('#cylinder').hasClass('selected')) {
-                new Cylinder($(this).attr('id'));
-            } else if ($('#pyramid').hasClass('selected')) {
-                new Pyramid($(this).attr('id'));
-            } else if ($('#prism').hasClass('selected')) {
-                new Prism($(this).attr('id'));
-            }
-        if ($(this).hasClass('objct-sign')) {
-            new Sign();
-        }
-        }
-    });
-    $('.shape').click(function() {
-        $('.shape.selected').removeClass('selected');
-        $(this).addClass('selected');
-    });
-    //
-    $(document).mousedown(function(e) {
-        if (e.button == 1) {
-            drag.enabled = false;
-        }
-    });
-    $(document).mouseup(function(e) {
-        if (e.button == 1) {
-            drag.enabled = true;
-        }
-    });
 
-    $(document).keydown(function(e) {
-        if (e.which == 68) {
-            let geometry = current.geometry;
-            let material = current.material;
-            let obj = new THREE.Mesh( geometry, material );
-            obj.scale.x = current.scale.x;
-            obj.scale.y = current.scale.y;
-            obj.scale.z = current.scale.z;
-            obj.rotation.x = current.rotation.x;
-            obj.rotation.y = current.rotation.y;
-            obj.rotation.z = current.rotation.z;
-            obj.position.x = current.position.x;
-            obj.position.y = current.position.y;
-            obj.position.z = current.position.z;
-            scene.add( obj );
-            objects.push( obj );
-        }
-        if (e.which == 84) {
-            control.setMode( "translate" );
-        }
-        if (e.which == 82) {
-            control.setMode( "rotate" );
-        }
-        if (e.which == 83) {
-            control.setMode( "scale" );
-        }
-        if (e.which == 46) {
-            scene.remove(current);
-            objects.splice(objects.indexOf(current), 1);
-            scene.remove(control);
-        }
-    });
-    $('#scale').click(function() {
-        control.setMode( "scale" );
-    });
-    $('#rotate').click(function() {
-        control.setMode( "rotate" );
-    });
-    $('#move').click(function() {
-        control.setMode( "translate" );
-    });
-    $('#clone').click(function() {
+function handleDown(e) {
+    if (e.button == 1) {
+        drag.enabled = false;
+    }
+}
+function handleUp(e) {
+    if (e.button == 1) {
+        drag.enabled = true;
+    }
+}
+
+function handleKey(e) {
+    console.log(e.which);
+    if (e.which == 68) { // d
         let geometry = current.geometry;
         let material = current.material;
+
         let obj = new THREE.Mesh( geometry, material );
+
         obj.scale.x = current.scale.x;
         obj.scale.y = current.scale.y;
         obj.scale.z = current.scale.z;
@@ -653,16 +598,21 @@ $( document ).ready(function() {
         obj.position.x = current.position.x;
         obj.position.y = current.position.y;
         obj.position.z = current.position.z;
+
         scene.add( obj );
         objects.push( obj );
-    });
-    $('#delete').click(function() {
+    } else if (e.which == 84) { // t
+        control.setMode( "translate" );
+    } else if (e.which == 82) { // r
+        control.setMode( "rotate" );
+    } else if (e.which == 83) { // s
+        control.setMode( "scale" );
+    } else if (e.which == 46) { // delete
         scene.remove(current);
         objects.splice(objects.indexOf(current), 1);
         scene.remove(control);
-    });
-});
-*/
+    }
+}
 
 init();
 
