@@ -341,13 +341,14 @@ async function openProto(link) {
 
 async function init() {
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
     renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
     document.getElementById("viewport").appendChild( renderer.domElement );
+    renderer.setPixelRatio(window.devicePixelRatio);
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 75, (window.innerWidth - /*30*/0) / window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera( 75, (window.innerWidth - /*30*/0) / window.innerHeight, 0.1, 5000 );
     camera.position.z = 5;
 
     light = new THREE.AmbientLight(0xffffff);
