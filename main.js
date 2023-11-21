@@ -32,6 +32,7 @@ let shapeList = [
     'models/start_end.glb'
 ];
 
+let startMaterial, finishMaterial;
 let materials = [];
 let shapes = [];
 
@@ -267,6 +268,30 @@ void main()
     color.rgb *= texSample * adjustment.rgb;
     gl_FragColor = LinearTosRGB(color);
 }`;
+const startFinishVS = /*glsl*/`
+varying vec2 vTexcoord;
+
+void main()
+{
+    vTexcoord = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const startFinishFS = /*glsl*/`
+varying vec2 vTexcoord;
+
+uniform vec4 diffuseColor;
+
+void main()
+{
+    vec4 color = diffuseColor;
+    float factor = vTexcoord.y;
+    factor *= factor * factor;
+    factor = clamp(factor, 0.0, 1.0);
+    color.a = factor;
+
+    gl_FragColor = color;
+}`;
+
 
 function loadTexture(path) {
     return new Promise((resolve) => {
@@ -307,6 +332,22 @@ async function initAttributes() {
         const model = await loadModel(path);
         shapes.push(model);
     }
+
+    startMaterial = new THREE.ShaderMaterial();
+	startMaterial.vertexShader = startFinishVS;
+	startMaterial.fragmentShader = startFinishFS;
+	startMaterial.flatShading = true;
+	startMaterial.transparent = true;
+	startMaterial.depthWrite = false;
+	startMaterial.uniforms = { "diffuseColor": {value: [0.0, 1.0, 0.0, 1.0]}};
+
+	finishMaterial = new THREE.ShaderMaterial();
+	finishMaterial.vertexShader = startFinishVS;
+	finishMaterial.fragmentShader = startFinishFS;
+	finishMaterial.flatShading = true;
+	finishMaterial.transparent = true;
+	finishMaterial.depthWrite = false;
+	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
 }
 
 function readArrayBuffer(file) {
@@ -540,7 +581,19 @@ function loadLevelNode(node, parent) {
             color: color,
             isNeon: node?.isNeon
         };
-        
+
+        let targetVector = new THREE.Vector3();
+        let targetQuaternion = new THREE.Quaternion();
+        let worldMatrix = new THREE.Matrix4();
+        worldMatrix.compose(
+            objectShape.getWorldPosition(targetVector), 
+            objectShape.getWorldQuaternion(targetQuaternion), 
+            objectShape.getWorldScale(targetVector)
+        );
+
+        let normalMatrix = new THREE.Matrix3();
+        normalMatrix.getNormalMatrix(worldMatrix);
+        objectMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
 
         parent.add(objectShape);
         objects.push(objectShape);
@@ -581,6 +634,19 @@ function loadLevelNode(node, parent) {
             respawnTime: node?.respawnTime
         };
 
+        let targetVector = new THREE.Vector3();
+        let targetQuaternion = new THREE.Quaternion();
+        let worldMatrix = new THREE.Matrix4();
+        worldMatrix.compose(
+            objectShape.getWorldPosition(targetVector), 
+            objectShape.getWorldQuaternion(targetQuaternion), 
+            objectShape.getWorldScale(targetVector)
+        );
+
+        let normalMatrix = new THREE.Matrix3();
+        normalMatrix.getNormalMatrix(worldMatrix);
+        objectMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
+
         parent.add(objectShape);
         objects.push(objectShape);
 
@@ -613,7 +679,7 @@ function loadLevelNode(node, parent) {
         node = node.levelNodeStart;
 
         let objectShape = shapes[6].clone();
-        objectShape.material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+        objectShape.material = startMaterial;
 
         node.position.x ? objectShape.position.x = node.position.x : objectShape.position.x = 0;
         node.position.y ? objectShape.position.y = node.position.y : objectShape.position.y = 0;
@@ -638,7 +704,7 @@ function loadLevelNode(node, parent) {
         node = node.levelNodeFinish;
 
         let objectShape = shapes[6].clone();
-        objectShape.material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
+        objectShape.material = finishMaterial;
 
         node.position.x ? objectShape.position.x = node.position.x : objectShape.position.x = 0;
         node.position.y ? objectShape.position.y = node.position.y : objectShape.position.y = 0;
