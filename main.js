@@ -281,7 +281,6 @@ function loadModel(path) {
     return new Promise((resolve) => {
         loader.load(path, function (gltf) {
             const glftScene = gltf.scene;
-            // glftScene.children[0].geometry.rotateX(Math.PI);
             resolve(glftScene.children[0]);
         });
     });
@@ -342,13 +341,13 @@ async function openProto(link) {
 async function init() {
 
     renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
-    renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight );
     document.getElementById("viewport").appendChild( renderer.domElement );
     renderer.setPixelRatio(window.devicePixelRatio);
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 75, (window.innerWidth - /*30*/0) / window.innerHeight, 0.1, 5000 );
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 5000 );
     camera.position.z = 5;
 
     light = new THREE.AmbientLight(0xffffff);
@@ -431,6 +430,28 @@ async function init() {
         complexity += loadLevelNode(node, scene);
     });
 
+    let ambience = level.ambienceSettings;
+    let sky = [
+        [0, 0, 0],
+        [0, 0, 0]
+    ];
+    
+    if (ambience) {
+        if (ambience.skyZenithColor) {
+            sky[0][0] = (ambience?.skyZenithColor?.r || 0) * 255;
+            sky[0][1] = (ambience?.skyZenithColor?.g || 0) * 255;
+            sky[0][2] = (ambience?.skyZenithColor?.b || 0) * 255;
+        }
+        if (ambience.skyHorizonColor) {
+            sky[1][0] = (ambience?.skyHorizonColor?.r || 0) * 255;
+            sky[1][1] = (ambience?.skyHorizonColor?.g || 0) * 255;
+            sky[1][2] = (ambience?.skyHorizonColor?.b || 0) * 255;
+        }
+    }
+
+    document.body.style.backgroundImage = `linear-gradient(rgb(${sky[0][0]}, ${sky[0][1]}, ${sky[0][2]}), rgb(${sky[1][0]}, ${sky[1][1]}, ${sky[1][2]}), rgb(${sky[0][0]}, ${sky[0][1]}, ${sky[0][2]}))`;
+    
+    console.log(level);
     console.log(complexity);
     console.log(objects);
     console.log(scene);
@@ -683,7 +704,6 @@ function cloneCurrent() {
 }
 
 function handleKey(e) {
-    console.log(e.which);
     if (e.which == 68) { // d
         cloneCurrent();
     } else if (e.which == 84) { // t
@@ -698,10 +718,10 @@ function handleKey(e) {
 }
 
 function onWindowResize() {
-    camera.aspect = (window.innerWidth - /*30*/0) / window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     
-    renderer.setSize( window.innerWidth - /*30*/0, window.innerHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function exportScene() {
@@ -852,102 +872,6 @@ function exportScene() {
             exportNode(object, level.levelNodes);
         }
     });
-
-    /*
-    objects.forEach(object => {
-        if (object?.grabInfo?.type !== "group") {
-            let node;
-            if (object.grabInfo.type == 'static') {
-                node = {"levelNodeStatic":{
-                    "shape": object.grabInfo.shape,
-                    "material": object.grabInfo.material,
-                    "position": {
-                        "x": object.position.x,
-                        "y": object.position.y,
-                        "z": object.position.z
-                    },
-                    "scale": {
-                        "x": object.scale.x,
-                        "y": object.scale.y,
-                        "z": object.scale.z
-                    },
-                    "rotation": {
-                        "x": object.quaternion.x,
-                        "y": object.quaternion.y,
-                        "z": object.quaternion.z,
-                        "w": object.quaternion.w
-                    }
-                }};
-                object.grabInfo.color ? node.color = object.grabInfo.color : null;
-                object.grabInfo.isNeon ? node.isNeon = object.grabInfo.isNeon : null;
-            } else if (object.grabInfo.type === "crumbling") {
-                node = {"levelNodeStatic":{
-                    "shape": object.grabInfo.shape,
-                    "material": object.grabInfo.material,
-                    "position": {
-                        "x": object.position.x,
-                        "y": object.position.y,
-                        "z": object.position.z
-                    },
-                    "scale": {
-                        "x": object.scale.x,
-                        "y": object.scale.y,
-                        "z": object.scale.z
-                    },
-                    "rotation": {
-                        "x": object.quaternion.x,
-                        "y": object.quaternion.y,
-                        "z": object.quaternion.z,
-                        "w": object.quaternion.w
-                    }
-                }};
-                object.grabInfo.stableTime ? node.stableTime = object.grabInfo.stableTime : null;
-                object.grabInfo.respawnTime ? node.respawnTime = object.grabInfo.respawnTime : null;
-            } else if (object.grabInfo.type === "sign") {
-                node = {"levelNodeSign":{
-                    "position": {
-                        "x": object.position.x,
-                        "y": object.position.y,
-                        "z": object.position.z
-                    },
-                    "rotation": {
-                        "x": object.quaternion.x,
-                        "y": object.quaternion.y,
-                        "z": object.quaternion.z,
-                        "w": object.quaternion.w
-                    }
-                }};
-                object.grabInfo.text ? node.text = object.grabInfo.text : null;
-            } else if (object.grabInfo.type === "start") {
-                node = {"levelNodeStart":{
-                    "position": {
-                        "x": object.position.x,
-                        "y": object.position.y,
-                        "z": object.position.z
-                    },
-                    "rotation": {
-                        "x": object.quaternion.x,
-                        "y": object.quaternion.y,
-                        "z": object.quaternion.z,
-                        "w": object.quaternion.w
-                    },
-                    "radius": object.scale.x
-                }};
-            } else if (object.grabInfo.type === "finish") {
-                node = {"levelNodeFinish":{
-                    "position": {
-                        "x": object.position.x,
-                        "y": object.position.y,
-                        "z": object.position.z
-                    },
-                    "radius": object.scale.x
-                }};
-            }
-            
-            level.levelNodes.push(node);
-        }
-    });
-    */
 
     console.log(level);
 
