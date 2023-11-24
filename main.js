@@ -9,6 +9,7 @@ let camera, scene, renderer, light, sun, controls, control, drag, current;
 let objects = [];
 let loader = new GLTFLoader();
 let importedLevel;
+let shadowMapSize, shadowRenderTarget, shadowMap, shadowCamera;
 
 let materialList = [
     'textures/default.png',
@@ -219,6 +220,7 @@ const vertexShader = /*glsl*/`
 
 varying vec3 vWorldPosition;
 varying vec3 vNormal;
+varying vec4 vShadowCoord;
 
 uniform mat3 worldNormalMatrix;
 
@@ -230,22 +232,27 @@ void main()
     vNormal = worldNormalMatrix * normal;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    
+    vShadowCoord = shadowMatrix * worldPosition;
 }`;
 const fragmentShader = /*glsl*/`
 
 varying vec3 vWorldPosition;
 varying vec3 vNormal;
+varying vec4 vShadowCoord;
 
 uniform vec3 colors;
 uniform float opacity;
 uniform sampler2D colorTexture;
 uniform float tileFactor;
+uniform sampler2D shadowMap;
 
 const float gamma = 0.5;
 
 void main()
 {
     vec4 color = vec4(colors, opacity);
+    float shadow = texture2D(shadowMap, vShadowCoord.xy / vShadowCoord.w);
     vec3 blendNormals = abs(vNormal);
     vec3 texSample;
     vec4 adjustment = vec4(1.0, 1.0, 1.0, 1.0);
@@ -264,8 +271,8 @@ void main()
     }
 
     texSample = pow(texSample, vec3(1.0 / gamma));
-
-    color.rgb *= texSample * adjustment.rgb;
+    
+    color.rgb *= texSample * adjustment.rgb * shadow;
     gl_FragColor = LinearTosRGB(color);
 }`;
 const startFinishVS = /*glsl*/`
@@ -395,6 +402,14 @@ async function init() {
     scene.add(light);
     sun = new THREE.DirectionalLight( 0xffffff, 0.5 );
     scene.add( sun );
+    
+    shadowMapSize = 1024;
+    shadowRenderTarget = new THREE.WebGLRenderTarget(shadowMapSize, shadowMapSize);
+    shadowRenderTarget.texture.name = 'ShadowMap';
+    shadowMap = new THREE.ShadowMap(renderer, scene, shadowRenderTarget);
+    shadowCamera = new THREE.OrthographicCamera(-10, 10, 10, -10, 1, 100);
+    shadowCamera.position.set(20, 20, 20);
+    shadowCamera.lookAt(new THREE.Vector3());
 
     controls = new OrbitControls( camera, renderer.domElement );
     controls.mouseButtons = {LEFT: 2, MIDDLE: 1, RIGHT: 0}
@@ -729,6 +744,11 @@ function loadLevelNode(node, parent) {
 function animate() {
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
+    shadowMap.update();
+    materials.forEach(mat => {
+        mat.uniforms.shadowMap.value = shadowMap.texture;
+        mat.uniforms.shadowMatrix.value = shadowCamera.matrixWorldInverse;
+    });
 }
 
 function handleDown(e) {
