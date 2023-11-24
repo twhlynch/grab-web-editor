@@ -330,6 +330,8 @@ async function initAttributes() {
                 "worldNormalMatrix": { value: new THREE.Matrix3() },
                 "colors": { value: new THREE.Vector3(1.0, 1.0, 1.0) },
                 "opacity": { value: 1.0 },
+                "shadowMap": { value: shadowMap.texture },
+                "shadowMatrix": { value: shadowCamera.matrixWorldInverse }
             }
         });
         materials.push(material);
