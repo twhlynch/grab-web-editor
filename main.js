@@ -1,15 +1,14 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/OrbitControls.js';
-import { DragControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/DragControls.js';
-import { TransformControls } from 'https://unpkg.com/three@0.145.0/examples/jsm/controls/TransformControls.js';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
-import { VRButton } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/webxr/VRButton.min.js";
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { DragControls } from 'three/addons/controls/DragControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 let camera, scene, renderer, light, sun, controls, control, drag, current;
 let objects = [];
 let loader = new GLTFLoader();
 let importedLevel;
-let shadowMapSize, shadowRenderTarget, shadowMap, shadowCamera;
 
 let materialList = [
     'textures/default.png',
@@ -265,7 +264,7 @@ void main()
     }
 
     texSample = pow(texSample, vec3(1.0 / gamma));
-    
+
     color.rgb *= texSample * adjustment.rgb;
     gl_FragColor = LinearTosRGB(color);
 }`;
